@@ -32,6 +32,55 @@ describe MoviesController do
       Movie.should_receive(:find).with('13').and_return(mock)
       get :show, {:id => '13'}
     end
+
+    it 'should redirect to index if movie does not have a director' do
+      mock = mock('Movie')
+      mock.stub!(:director).and_return(nil)
+      mock.stub!(:title).and_return(nil)
+      Movie.should_receive(:find).with('13').and_return(mock)
+      get :similar, {:id => '13'}
+      response.should redirect_to(movies_path)
+    end
+
+    it 'should be possible to create movie' do
+      movie = mock('Movie')
+      movie.stub!(:title)
+      Movie.should_receive(:create!).and_return(movie)
+      post :create, {:movie => movie}
+      response.should redirect_to(movies_path)
+    end
+
+    it 'should be possible to destroy movie' do
+      movie = mock('Movie')
+      movie.stub!(:title)
+      Movie.should_receive(:find).with('13').and_return(movie)
+      movie.should_receive(:destroy)
+      post :destroy, {:id => '13'}
+      response.should redirect_to(movies_path)
+    end
+
+    it 'should redirect if sort order has been changed' do
+      session[:sort] = 'release_date'
+      get :index, {:sort => 'title'}
+      response.should redirect_to(movies_path(sort => 'title'))
+    end
+    it 'should be possible to order by release date' do
+      get :index, {:sort => 'release_date'}
+      response.should redirect_to(movies_path(:sort => 'release_date'))
+    end
+    it 'should be possible to order by title' do
+      get :index, {:sort => 'title'}
+      response.should redirect_to(movies_path(:sort => 'title'))
+    end
+    it 'should remove noDirector message from session' do
+      session[:noDirector] = 'test'
+      get :index
+      session[:noDirector].should == nil
+    end
+    it 'should call database to get movies' do
+      Movie.should_receive(:find_all_by_rating)
+      get :index
+    end
   end
 end
 
