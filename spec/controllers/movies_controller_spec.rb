@@ -8,6 +8,7 @@ describe MoviesController do
       get :edit, {:id => '13'}
       response.should be_success
     end
+
     it 'And I fill in "Director" with "Ridley Scott", And  I press "Update Movie Info", it should save the director' do
       mock = mock('Movie')
       mock.stub!(:update_attributes!)
@@ -27,6 +28,7 @@ describe MoviesController do
       Movie.should_receive(:find_all_by_director).with(mock.director).and_return(similarMocks)
       get :similar, {:id => '13'}
     end
+
     it 'should show Movie by id' do
       mock = mock('Movie')
       Movie.should_receive(:find).with('13').and_return(mock)
@@ -59,24 +61,6 @@ describe MoviesController do
       response.should redirect_to(movies_path)
     end
 
-    it 'should redirect if sort order has been changed' do
-      session[:sort] = 'release_date'
-      get :index, {:sort => 'title'}
-      response.should redirect_to(movies_path(sort => 'title'))
-    end
-    it 'should be possible to order by release date' do
-      get :index, {:sort => 'release_date'}
-      response.should redirect_to(movies_path(:sort => 'release_date'))
-    end
-    it 'should be possible to order by title' do
-      get :index, {:sort => 'title'}
-      response.should redirect_to(movies_path(:sort => 'title'))
-    end
-    it 'should remove noDirector message from session' do
-      session[:noDirector] = 'test'
-      get :index
-      session[:noDirector].should == nil
-    end
     it 'should call database to get movies' do
       Movie.should_receive(:find_all_by_rating)
       get :index
