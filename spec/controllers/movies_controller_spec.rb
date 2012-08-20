@@ -61,6 +61,16 @@ describe MoviesController do
       response.should redirect_to(movies_path)
     end
 
+    it 'should sort by release date' do
+      session[:sort] = 'release_date'
+      get :index
+    end
+
+    it 'should sort by title' do
+      session[:sort] = 'title'
+      get :index
+    end
+
     it 'should call database to get movies' do
       Movie.should_receive(:find_all_by_rating)
       get :index
